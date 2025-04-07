@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bahay ni Rob - Order Now</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .menu-card {
+      min-height: 260px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col-md-8">
+        <h2>Menu</h2>
+        <div class="row" id="menu">
+          <!-- Menu items will be populated here -->
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h2>Ordered Items</h2>
+        <ul class="list-group mb-3" id="order-list"></ul>
+        <h4>Total: <span id="total">₱0</span></h4>
+        <input type="text" class="form-control mb-2" placeholder="Enter the amount here" id="amount" />
+        <button class="btn btn-success w-100 mb-2" onclick="pay()">Pay!</button>
+        <button class="btn btn-secondary w-100" onclick="printReceipt()">Print Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const menuItems = [
+      { name: "Kare-Kare", price: 280 },
+      { name: "Crispy Pata", price: 420 },
+      { name: "Adobong Baboy", price: 190 },
+      { name: "Sinigang na Baboy", price: 200 },
+      { name: "Laing", price: 150 },
+      { name: "Chicken Inasal", price: 180 },
+      { name: "Pancit Canton", price: 160 },
+      { name: "Tapsilog", price: 150 },
+      { name: "Halo-Halo", price: 120 }
+    ];
+
+    const menuContainer = document.getElementById("menu");
+    const orderList = document.getElementById("order-list");
+    const totalDisplay = document.getElementById("total");
+    let total = 0;
+
+    menuItems.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "col-md-4 mb-3";
+      card.innerHTML = `
+        <div class="card menu-card">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="card-text">₱${item.price}</p>
+            <input type="number" class="form-control mb-2" placeholder="Enter quantity" id="qty-${index}" />
+            <button class="btn btn-primary w-100" onclick="addToOrder(${index})">Add to order</button>
+          </div>
+        </div>
+      `;
+      menuContainer.appendChild(card);
+    });
+
+    function addToOrder(index) {
+      const qty = parseInt(document.getElementById(`qty-${index}`).value);
+      if (!qty || qty <= 0) return alert("Please enter a valid quantity.");
+
+      const item = menuItems[index];
+      const subtotal = item.price * qty;
+      total += subtotal;
+
+      const listItem = document.createElement("li");
+      listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+      listItem.textContent = `${item.name} x${qty}`;
+      const badge = document.createElement("span");
+      badge.className = "badge bg-primary rounded-pill";
+      badge.textContent = `₱${subtotal}`;
+      listItem.appendChild(badge);
+      orderList.appendChild(listItem);
+
+      totalDisplay.textContent = `₱${total}`;
+      document.getElementById(`qty-${index}`).value = "";
+    }
+
+    function pay() {
+      const amount = parseInt(document.getElementById("amount").value);
+      if (amount < total) {
+        alert("Insufficient amount. Please enter a higher amount.");
+      } else {
+        alert(`Payment successful! Change: ₱${amount - total}`);
+        orderList.innerHTML = "";
+        total = 0;
+        totalDisplay.textContent = `₱0`;
+        document.getElementById("amount").value = "";
+      }
+    }
+
+    function printReceipt() {
+      let receipt = "Receipt\n\n";
+      [...orderList.children].forEach(item => {
+        receipt += item.textContent + "\n";
+      });
+      receipt += `\nTotal: ${totalDisplay.textContent}`;
+      alert(receipt);
+    }
+  </script>
+</body>
+</html>
